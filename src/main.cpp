@@ -20,10 +20,10 @@ limitations under the License.
 
 #include <QApplication>
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    QApplication a (argc, argv);
+    QApplication a(argc, argv);
     KittiVisualizerQt w(NULL, argc, argv);
-    w.show ();
-    return a.exec ();
+    w.show();
+    return a.exec();
 }

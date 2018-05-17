@@ -1,1 +1,5 @@
 CMakeLists.txt.user
+
+# CLion built files
+.idea/
+cmake-build-debug/

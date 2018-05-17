@@ -38,29 +38,32 @@ limitations under the License.
 
 #include <kitti-devkit-raw/tracklets.h>
 
-namespace Ui
-{
-class KittiVisualizerQt;
+namespace Ui {
+    class KittiVisualizerQt;
 }
 
-class KittiVisualizerQt : public QMainWindow
-{
-    Q_OBJECT
+typedef pcl::PointXYZI PcdPoint;
+
+class KittiVisualizerQt : public QMainWindow {
+Q_OBJECT
 
 public:
+    KittiVisualizerQt(QWidget *parent, int argc, char **argv);
 
-    KittiVisualizerQt(QWidget *parent, int argc, char** argv);
     virtual ~KittiVisualizerQt();
 
     bool loadDataset();
+
     bool loadNextFrame();
+
     bool loadPreviousFrame();
 
-    void getTrackletColor(const KittiTracklet& tracklet, int &r, int& g, int& b);
+    void getTrackletColor(const KittiTracklet& tracklet, int& r, int& g, int& b);
 
 public slots:
+    void openDataset();
+    void openPCD();
 
-    void newDatasetRequested(int value);
     void newFrameRequested(int value);
     void newTrackletRequested(int value);
 
@@ -69,9 +72,12 @@ public slots:
     void showTrackletPointCloudsToggled(bool value);
     void showTrackletInCenterToggled(bool value);
 
-private:
+    void nextPCD();
+    void previousPCD();
+    void pcdChanged(const QString& cur_pcd);
 
-    int parseCommandLineOptions(int argc, char** argv);
+private:
+    int parseCommandLineOptions(int argc, char **argv);
 
     int dataset_index;
     KittiDataset* dataset;
@@ -83,40 +89,59 @@ private:
     pcl::visualization::PCLVisualizer::Ptr pclVisualizer;
 
     void loadAvailableTracklets();
+
     void clearAvailableTracklets();
+
     std::vector<KittiTracklet> availableTracklets;
 
-    void updateDatasetLabel();
     void updateFrameLabel();
     void updateTrackletLabel();
 
-    void loadPointCloud();
+    bool loadPointCloud();
     void showPointCloud();
     void hidePointCloud();
+
     bool pointCloudVisible;
     KittiPointCloud::Ptr pointCloud;
 
     void showTrackletBoxes();
     void hideTrackletBoxes();
+
     bool trackletBoundingBoxesVisible;
 
     void loadTrackletPoints();
     void showTrackletPoints();
     void hideTrackletPoints();
     void clearTrackletPoints();
+
     bool trackletPointsVisible;
     std::vector<KittiPointCloud::Ptr> croppedTrackletPointClouds;
 
     void showTrackletInCenter();
     void hideTrackletInCenter();
+
     bool trackletInCenterVisible;
 
     void setFrameNumber(int frameNumber);
 
-    void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
-                                void* viewer_void);
+    void keyboardEventOccurred(const pcl::visualization::KeyboardEvent& event,
+                               void* viewer_void);
+    void resetUI();
 
-    Ui::KittiVisualizerQt *ui;
+    bool pcd_opened_;
+    std::string pcd_dir_;
+    std::vector<std::string> pcd_filelists_;
+    int cur_pcd_index_;
+    pcl::PointCloud<PcdPoint>::Ptr cur_pcd_ptr_;
+
+    void loadPCD(const std::string& dir_path, std::vector<std::string>& out_filelists, std::string type);
+    void showPCD();
+    void hidePCD();
+    void clearPCD();
+    void sortFilelists(std::vector<std::string>& filists, std::string type);
+    int findIndex(const std::vector<std::string>& file_lists, const std::string& cur_file_name);
+
+    Ui::KittiVisualizerQt* ui;
 };
 
 #endif // QT_KITTI_VISUALIZER_H

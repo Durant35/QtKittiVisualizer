@@ -27,7 +27,11 @@ endif()
 
 set(PROJECT_BINARY_NAME qt-kitti-visualizer)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}
+    include
+)
 
 find_package(Boost 1.54 COMPONENTS program_options filesystem REQUIRED)
 set(Boost_COMPONENTS_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
@@ -43,33 +47,37 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 set(CPP_FILES
-    KittiConfig.cpp
-    KittiDataset.cpp
-    main.cpp
-    QtKittiVisualizer.cpp
+    src/main.cpp
+    src/QtKittiVisualizer.cpp
+    src/KittiDataset.cpp
+    src/KittiFileSystem.cpp
 )
-set(WRAP_CPP_FILES QtKittiVisualizer.h)
-set(WRAP_UI_FILES QtKittiVisualizer.ui)
+
+set(WRAP_CPP_FILES include/QtKittiVisualizer.h)
+set(WRAP_UI_FILES ui/QtKittiVisualizer.ui)
 
 if(${VTK_VERSION} VERSION_GREATER "6" AND VTK_QT_VERSION VERSION_GREATER "4")
   qt5_wrap_ui(PROJECT_FORMS_HEADERS ${WRAP_UI_FILES} )
   # CMAKE_AUTOMOC in ON so the MOC headers will be automatically wrapped.
   add_executable(${PROJECT_BINARY_NAME}
-    ${CPP_FILES}
-    ${PROJECT_FORMS_HEADERS}
-    ${WRAP_CPP_FILES})
+      ${CPP_FILES}
+      ${PROJECT_FORMS_HEADERS}
+      ${WRAP_CPP_FILES}
+  )
   qt5_use_modules(${PROJECT_BINARY_NAME} Core Gui)
   target_link_libraries(${PROJECT_BINARY_NAME}
       ${PCL_LIBRARIES}
       ${VTK_LIBRARIES}
-      ${Boost_COMPONENTS_LIBRARIES})
+      ${Boost_COMPONENTS_LIBRARIES}
+  )
 else()
   QT4_WRAP_UI(PROJECT_FORMS_HEADERS ${WRAP_UI_FILES})
   QT4_WRAP_CPP(PROJECT_HEADERS_MOC ${WRAP_CPP_FILES})
   add_executable(${PROJECT_BINARY_NAME}
       ${CPP_FILES}
       ${PROJECT_FORMS_HEADERS}
-      ${PROJECT_HEADERS_MOC})
+      ${PROJECT_HEADERS_MOC}
+  )
 
   if(VTK_LIBRARIES)
     if(${VTK_VERSION} VERSION_LESS "6")
@@ -77,12 +85,14 @@ else()
           ${PCL_LIBRARIES}
           ${VTK_LIBRARIES}
           QVTK
-          ${Boost_COMPONENTS_LIBRARIES})
+          ${Boost_COMPONENTS_LIBRARIES}
+      )
     else()
       target_link_libraries(${PROJECT_BINARY_NAME}
           ${PCL_LIBRARIES}
           ${VTK_LIBRARIES}
-          ${Boost_COMPONENTS_LIBRARIES})
+          ${Boost_COMPONENTS_LIBRARIES}
+      )
     endif()
   else()
     target_link_libraries(${PROJECT_BINARY_NAME}
@@ -91,6 +101,7 @@ else()
         vtkViews
         ${QT_LIBRARIES}
         ${PCL_LIBRARIES}
-        ${Boost_COMPONENTS_LIBRARIES})
+        ${Boost_COMPONENTS_LIBRARIES}
+    )
   endif()
 endif()
